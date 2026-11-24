@@ -29,7 +29,7 @@ function Tile({ on, name, note, broad, onClick }: { on: boolean; name: string; n
           {name}
           {broad && <span className={label}>Whole field</span>}
         </span>
-        <span className="mt-0.5 line-clamp-2 block text-xs leading-relaxed text-muted">{note}</span>
+        <span className="mt-0.5 line-clamp-2 text-xs leading-relaxed text-muted">{note}</span>
       </span>
     </button>
   );
