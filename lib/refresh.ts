@@ -27,7 +27,7 @@ export async function refresh(topic: TopicRow) {
       try {
         if (!process.env.GEMINI_API_KEY) throw new Error("no key");
         found = await sortWithAI(topic, list, recent, failed);
-      } catch (e) {
+      } catch {
         found = sortByRules(list);
         used = list.filter((i) => i.kind === "official").map((i) => i.url);
       }
