@@ -98,9 +98,17 @@ function googleNews(q: string, kind: Kind, back: number): Promise<Item[]> {
 
 async function hackerNews(q: string, min: number, back: number): Promise<Item[]> {
   const since = Math.floor(days(back) / 1000);
-  const url = `https://hn.algolia.com/api/v1/search?query=${encodeURIComponent(q)}&tags=story&numericFilters=${encodeURIComponent(`created_at_i>${since},points>=${min}`)}&hitsPerPage=40`;
-  const data = JSON.parse(await get(url));
-  return (data.hits ?? []).map((h: Record<string, unknown>) => ({
+  // The search needs every word to match, so "A OR B" finds nothing: search each term on its own and merge.
+  const terms = q.split(/\s+OR\s+/).map((t) => t.trim()).filter(Boolean);
+  const pages = await Promise.all(
+    terms.map((term) =>
+      get(
+        `https://hn.algolia.com/api/v1/search?query=${encodeURIComponent(term)}&tags=story&numericFilters=${encodeURIComponent(`created_at_i>${since},points>=${min}`)}&hitsPerPage=40`,
+      ).then((body) => (JSON.parse(body).hits ?? []) as Record<string, unknown>[]),
+    ),
+  );
+  const hits = [...new Map(pages.flat().map((h) => [h.objectID, h])).values()];
+  return hits.map((h) => ({
     title: plain(str(h.title)),
     url: str(h.url) || `https://news.ycombinator.com/item?id=${h.objectID}`,
     site: "Hacker News",
