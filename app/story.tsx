@@ -7,7 +7,7 @@ export type Story = {
   topic: string;
   headline: string;
   summary: string;
-  big: boolean;
+  importance: number;
   date: string;
   found: number;
   links: { title: string; url: string; site: string }[];
@@ -29,7 +29,7 @@ export default function StoryRow({ story, fresh }: { story: Story; fresh: boolea
           <a href={story.links[0]?.url} target="_blank" rel="noreferrer" className="decoration-line underline-offset-4 hover:underline">
             {story.headline}
           </a>
-          {story.big && (
+          {story.importance >= 3 && (
             <span className="ml-2 inline-block -translate-y-px rounded bg-accent-soft px-1.5 py-0.5 align-middle font-sans text-[10px] font-semibold uppercase tracking-wider text-accent">
               Big
             </span>

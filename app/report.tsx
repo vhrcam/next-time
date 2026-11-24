@@ -135,7 +135,7 @@ export default function Report() {
   const firstVisit = since === 0;
   const isNew = (s: Story) => (firstVisit ? Date.parse(s.date) >= now - 7 * DAY : s.found > since);
   const inView = (s: Story) => (view === "new" ? isNew(s) : Date.parse(s.date) >= now - (view === "week" ? 7 : 31) * DAY);
-  const stories = (data?.stories ?? []).filter((s) => inView(s) && (!bigOnly || s.big));
+  const stories = (data?.stories ?? []).filter((s) => inView(s) && (!bigOnly || s.importance >= 3));
   const topics = data?.topics ?? [];
   const withNews = topics.filter((t) => stories.some((s) => s.topic === t.id) || (checking.includes(t.id) && !t.checked));
   const quiet = topics.filter((t) => !withNews.includes(t));
