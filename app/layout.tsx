@@ -1,26 +1,27 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Newsreader } from "next/font/google";
+import { Inter, Libre_Baskerville } from "next/font/google";
+import Shell from "./shell";
 import "./globals.css";
 
-const geist = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
-const newsreader = Newsreader({ variable: "--font-newsreader", subsets: ["latin"] });
+const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
+const baskerville = Libre_Baskerville({ variable: "--font-baskerville", subsets: ["latin"], weight: ["400", "700"] });
 
 export const metadata: Metadata = {
   title: "next time",
-  description: "The announcements from the topics you follow, without the feed. Official news, checked daily, in one short report.",
+  description: "Stay informed without staying online. A short briefing of the real developments in what you follow, with no feed.",
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f7f5f0" },
-    { media: "(prefers-color-scheme: dark)", color: "#131312" },
-  ],
+  themeColor: "#0b0b0c",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${geist.variable} ${newsreader.variable} h-full antialiased`}>
-      <body className="min-h-full">{children}</body>
+    <html lang="en" className={`${inter.variable} ${baskerville.variable} antialiased`}>
+      <body>
+        <Shell>{children}</Shell>
+      </body>
     </html>
   );
 }

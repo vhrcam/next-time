@@ -1,51 +1,42 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #f7f5f0;
-  --card: #fffefb;
-  --ink: #1d1c1a;
-  --muted: #6b675f;
-  --faint: #9c978d;
-  --line: #e5e1d8;
-  --chip: #eeebe4;
-  --accent: #b9441a;
-  --accent-soft: #f8e6dc;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #131312;
-    --card: #1a1a18;
-    --ink: #ecebe6;
-    --muted: #a39f96;
-    --faint: #75716a;
-    --line: #2b2a27;
-    --chip: #242321;
-    --accent: #ef8a5c;
-    --accent-soft: #3a241a;
-  }
+  color-scheme: dark;
+  --bg: #0b0b0c;
+  --side: #0e0e10;
+  --surface: #141416;
+  --raised: #1b1b1e;
+  --panel: #101012;
+  --line: #232327;
+  --strong: #36363c;
+  --ink: #ebe9e4;
+  --muted: #a09e99;
+  --faint: #7c7a76;
+  --accent: #c9a66b;
 }
 
 @theme inline {
   --color-bg: var(--bg);
-  --color-card: var(--card);
+  --color-side: var(--side);
+  --color-surface: var(--surface);
+  --color-raised: var(--raised);
+  --color-panel: var(--panel);
+  --color-line: var(--line);
+  --color-strong: var(--strong);
   --color-ink: var(--ink);
   --color-muted: var(--muted);
   --color-faint: var(--faint);
-  --color-line: var(--line);
-  --color-chip: var(--chip);
   --color-accent: var(--accent);
-  --color-accent-soft: var(--accent-soft);
-  --font-sans: var(--font-geist-sans);
-  --font-serif: var(--font-newsreader);
+  --font-sans: var(--font-inter);
+  --font-logo: var(--font-baskerville);
 }
 
 body {
   background: var(--bg);
   color: var(--ink);
-  font-family: var(--font-sans), system-ui, sans-serif;
+  font-family: var(--font-inter), system-ui, sans-serif;
 }
 
 ::selection {
-  background: var(--accent-soft);
+  background: color-mix(in srgb, var(--accent) 35%, transparent);
 }
