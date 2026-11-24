@@ -77,13 +77,13 @@ export default function Shell({ children }: { children: ReactNode }) {
           </Link>
           <span className="truncate text-[11px] text-faint">{note}</span>
         </div>
-        <nav className="flex gap-1 overflow-x-auto px-2 pb-2 pt-2.5">
+        <nav className="grid grid-cols-5 gap-0.5 px-1.5 pb-2 pt-2.5">
           {nav.map((n) => (
             <Link
               key={n.href}
               href={n.href}
               aria-current={active(n.href) ? "page" : undefined}
-              className={`whitespace-nowrap rounded-[5px] px-3 py-1.5 text-sm ${active(n.href) ? "bg-raised text-ink" : "text-muted"}`}
+              className={`truncate rounded-[5px] px-1 py-1.5 text-center text-[13px] ${active(n.href) ? "bg-raised text-ink" : "text-muted"}`}
             >
               {n.short ?? n.label}
             </Link>
