@@ -1,5 +1,5 @@
-import Report from "./report";
+import BriefingView from "./briefing";
 
 export default function Home() {
-  return <Report />;
+  return <BriefingView />;
 }
