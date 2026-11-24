@@ -34,8 +34,17 @@ export async function refresh(topic: TopicRow) {
       }
     }
     for (const f of found) {
-      if (f.existing) await addLinks(f.existing, toLinks(f.posts), f.big);
-      else await addStory(topic.id, { headline: f.headline, summary: f.summary, big: f.big, date: f.date, links: toLinks(f.posts) });
+      if (f.existing) await addLinks(f.existing, toLinks(f.posts), f.importance);
+      else
+        await addStory(topic.id, {
+          headline: f.headline,
+          summary: f.summary,
+          points: f.points,
+          why: f.why,
+          importance: f.importance,
+          date: f.date,
+          links: toLinks(f.posts),
+        });
     }
     await markSeen(topic.id, used);
     await release(topic.id, true);

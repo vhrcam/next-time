@@ -1,14 +1,17 @@
 import { createClient, type InValue } from "@libsql/client";
+import type { Kind } from "./sources";
 import type { Topic } from "./topics";
 
-export type Link = { title: string; url: string; site: string };
+export type Link = { title: string; url: string; site: string; kind?: Kind };
 
 export type Story = {
   id: number;
   topic: string;
   headline: string;
   summary: string;
-  big: boolean;
+  points: string[];
+  why: string;
+  importance: number;
   date: string;
   found: number;
   links: Link[];
@@ -32,7 +35,8 @@ function setup() {
         checked_at integer, checking_at integer, wanted_at integer, created_at integer not null)`,
       `create table if not exists stories (
         id integer primary key autoincrement, topic_id text not null, headline text not null,
-        summary text not null, big integer not null default 0, date text not null,
+        summary text not null, points text not null default '[]', why text not null default '',
+        importance integer not null default 1, date text not null,
         found_at integer not null, links text not null default '[]')`,
       `create index if not exists stories_topic on stories (topic_id, found_at)`,
       `create table if not exists seen (topic_id text not null, url text not null, at integer not null, primary key (topic_id, url))`,
@@ -63,7 +67,9 @@ const toStory = (r: Record<string, unknown>): Story => ({
   topic: r.topic_id as string,
   headline: r.headline as string,
   summary: r.summary as string,
-  big: Boolean(r.big),
+  points: JSON.parse(r.points as string),
+  why: r.why as string,
+  importance: Number(r.importance),
   date: r.date as string,
   found: Number(r.found_at),
   links: JSON.parse(r.links as string),
@@ -139,19 +145,14 @@ export async function markSeen(topic: string, urls: string[]) {
 }
 
 export async function addStory(topic: string, s: Omit<Story, "id" | "topic" | "found">) {
-  await run(`insert into stories (topic_id, headline, summary, big, date, found_at, links) values (?, ?, ?, ?, ?, ?, ?)`, [
-    topic,
-    s.headline,
-    s.summary,
-    s.big ? 1 : 0,
-    s.date,
-    Date.now(),
-    JSON.stringify(s.links),
-  ]);
+  await run(
+    `insert into stories (topic_id, headline, summary, points, why, importance, date, found_at, links) values (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [topic, s.headline, s.summary, JSON.stringify(s.points), s.why, s.importance, s.date, Date.now(), JSON.stringify(s.links)],
+  );
 }
 
-export async function addLinks(story: Story, links: Link[], big: boolean) {
+export async function addLinks(story: Story, links: Link[], importance: number) {
   const have = new Set(story.links.map((l) => l.url));
   const merged = [...story.links, ...links.filter((l) => !have.has(l.url))].slice(0, 12);
-  await run(`update stories set links = ?, big = ? where id = ?`, [JSON.stringify(merged), big || story.big ? 1 : 0, story.id]);
+  await run(`update stories set links = ?, importance = ? where id = ?`, [JSON.stringify(merged), Math.max(importance, story.importance), story.id]);
 }

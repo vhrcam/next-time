@@ -1,5 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
-import type { Item } from "./sources";
+import type { Item, Kind } from "./sources";
 import type { Link, Story } from "./db";
 import type { Topic } from "./topics";
 
@@ -8,9 +8,13 @@ export type Found = {
   existing: Story | null;
   headline: string;
   summary: string;
-  big: boolean;
+  points: string[];
+  why: string;
+  importance: number;
   date: string;
 };
+
+type Raw = Omit<Found, "posts" | "existing"> & { posts: number[]; existing: string };
 
 const light = process.env.GEMINI_MODEL || "gemini-3.5-flash-lite";
 // The free tier allows only a few calls a minute, so after both models refuse, wait a moment and ask the light one again.
@@ -22,7 +26,7 @@ const day = (t: number | null) => new Date(t ?? Date.now()).toISOString().slice(
 const schema = {
   type: "object",
   properties: {
-    stories: {
+    developments: {
       type: "array",
       items: {
         type: "object",
@@ -31,60 +35,68 @@ const schema = {
           existing: { type: "string" },
           headline: { type: "string" },
           summary: { type: "string" },
-          big: { type: "boolean" },
+          points: { type: "array", items: { type: "string" } },
+          why: { type: "string" },
+          importance: { type: "integer", minimum: 1, maximum: 3 },
           date: { type: "string" },
         },
-        required: ["posts", "existing", "headline", "summary", "big", "date"],
+        required: ["posts", "existing", "headline", "summary", "points", "why", "importance", "date"],
       },
     },
   },
-  required: ["stories"],
+  required: ["developments"],
 };
 
 function prompt(topic: Topic, items: Item[], recent: Story[]) {
   const label = (i: Item) => (i.kind === "community" ? `community (${i.points ?? 0} points)` : i.kind);
   const posts = items
-    .map((i, n) => `${n + 1} · ${label(i)} · ${i.site} · ${day(i.date)} · ${i.title}${i.text ? ` — ${i.text.slice(0, 180)}` : ""}`)
+    .map((i, n) => `${n + 1} · ${label(i)} · ${i.site} · ${day(i.date)} · ${i.title}${i.text ? ` — ${i.text.slice(0, 280)}` : ""}`)
     .join("\n");
   const known = recent.length ? recent.map((s) => `S${s.id} · ${s.date} · ${s.headline}`).join("\n") : "(none yet)";
-  return `You write a short news report for people who stay off social media but don't want to miss real news about a topic they follow.
+  return `You write briefings for people who stay off social media but don't want to miss real developments in what they follow.
 
-Topic: ${topic.name}: ${topic.about}.
+Interest: ${topic.name}: ${topic.about}.
 Today is ${day(Date.now())}.
 
-Stories already in the report:
+Developments already reported:
 ${known}
 
-New posts found since the last check:
+New posts found since the last check (number · source type · outlet · date · title — excerpt):
 ${posts}
 
-Pick out the real announcements and news among the new posts.
-- Keep: launches, releases, new features and updates, price or plan changes, release dates and delays, reveals and trailers, official statements, policy changes, outages and shutdowns, big deals, funding, acquisitions and leadership changes.
-- Leave out: opinion, analysis, reviews, guides, lists, reactions, jokes, rumors, leaks, speculation ("could", "might", "reportedly", "expected to"), stock and market chatter, shopping deals and sales, and anything that isn't really about ${topic.name}.
-- One story per real-world development. Put every post about the same development in it (list their numbers in posts).
-- Several small version releases of one product become one story.
-- If a post covers a story already in the report, set existing to that story's id (like "S12") and don't repeat the story. Otherwise leave existing empty.
+Find the real developments in the new posts. The test is whether something happened, not whether someone talked about something.
+- Developments: launches and releases, new features and updates, price or plan changes, release dates and delays, reveals and official trailers, official statements, policy and rule changes, outages and shutdowns, big deals, funding, acquisitions and leadership changes. Credible reporting by an established outlet about a significant development also counts; say who reported it ("Bloomberg reports...").
+- Not developments: opinion, commentary, analysis, reviews, guides, lists, reactions, memes, jokes, rumors, leaks, speculation and predictions ("could", "might", "expected to"), repeat coverage with nothing new, stock and market chatter, shopping deals, and anything that isn't really about ${topic.name}.
+- Trust official sources and established outlets first. Ignore claims that only appear on unknown blogs, content farms or aggregators.
+- One development per real-world event. List every post about it in posts. Several small version releases of one product become one development.
+- If a post is about a development already reported, set existing to its id (like "S12") and keep the other fields short. Otherwise leave existing empty.
 - headline: plain and factual, under 12 words, no hype, no clickbait, no emoji.
-- summary: one sentence with the key facts: what changed, who it's for, when it's out. Never include plot or story details of games, shows or films.
-- big: true only for news most people following ${topic.name} would want to hear about, like a major new product or model, a release date, or a big price change. Point releases, small features, partnerships, TV and content lineups, awards and outages are not big. Be strict: in a typical two weeks only one to three stories are big.
+- summary: what happened, in one or two plain sentences.
+- points: up to four short facts that are new, like names, numbers, dates, prices, availability and who it's for. Don't repeat the summary. Leave it empty if the posts don't say more.
+- why: one or two sentences on why it matters to someone who follows ${topic.name}: what it changes for them or what they can now do. Plain and specific. Don't use words like historic, massive, unprecedented, milestone, game-changing, reshaping or landscape.
+- importance: 3 = major, something most people following ${topic.name} would want to know right away (a major new product or model, a release date, a big price change, an acquisition). 2 = notable. 1 = minor (point releases, small features, partnerships, events, content lineups, awards). Be strict with 3: in a typical two weeks only one to three developments are major.
 - date: the day it happened, YYYY-MM-DD.
-- Returning no stories is fine when nothing qualifies.`;
+- Use only facts that are in the posts. Never include plot or story details of games, shows or films.
+- Returning no developments is fine when nothing qualifies.`;
 }
 
 export async function sortWithAI(topic: Topic, items: Item[], recent: Story[]): Promise<Found[]> {
   client ??= new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY, httpOptions: { retryOptions: { attempts: 1 } } });
-  let lastError: unknown;
+  const deadline = Date.now() + 100000;
+  let lastError: unknown = new Error("AI timed out");
   for (const [n, model] of models.entries()) {
     if (n === 2) await new Promise((r) => setTimeout(r, 8000));
+    const left = deadline - Date.now();
+    if (left < 10000) break;
     try {
       const res = await client.models.generateContent({
         model,
         contents: prompt(topic, items, recent),
-        config: { responseMimeType: "application/json", responseJsonSchema: schema, abortSignal: AbortSignal.timeout(45000) },
+        config: { responseMimeType: "application/json", responseJsonSchema: schema, abortSignal: AbortSignal.timeout(Math.min(55000, left)) },
       });
       const data = JSON.parse((res.text ?? "").trim().replace(/^```(?:json)?\s*/, "").replace(/\s*```$/, ""));
       const byId = new Map(recent.map((s) => [`S${s.id}`, s]));
-      return (data.stories as { posts: number[]; existing: string; headline: string; summary: string; big: boolean; date: string }[])
+      return (data.developments as Raw[])
         .map((s) => {
           const posts = [...new Set(s.posts)].map((n) => items[n - 1]).filter(Boolean);
           const earliest = Math.min(...posts.map((p) => p.date ?? Date.now()));
@@ -93,7 +105,9 @@ export async function sortWithAI(topic: Topic, items: Item[], recent: Story[]): 
             existing: byId.get(s.existing.trim()) ?? null,
             headline: s.headline.trim(),
             summary: s.summary.trim(),
-            big: Boolean(s.big),
+            points: (s.points ?? []).map((p) => p.trim()).filter(Boolean).slice(0, 4),
+            why: (s.why ?? "").trim(),
+            importance: Math.min(3, Math.max(1, Math.round(Number(s.importance) || 1))),
             date: /^\d{4}-\d{2}-\d{2}$/.test(s.date) ? s.date : day(earliest),
           };
         })
@@ -114,18 +128,28 @@ function similar(a: string, b: string) {
   return shared / Math.max(1, Math.min(x.size, y.size)) >= 0.6;
 }
 
-// Without the AI, only posts from official channels are trusted, one story each, with near-duplicate titles merged.
+// Without the AI, only posts from official channels are trusted, one development each, with near-duplicate titles merged.
 export function sortByRules(items: Item[]): Found[] {
   const found: Found[] = [];
   for (const item of items.filter((i) => i.kind === "official")) {
     const same = found.find((f) => similar(f.headline, item.title));
     if (same) same.posts.push(item);
-    else found.push({ posts: [item], existing: null, headline: item.title, summary: item.text.split(/(?<=\.)\s/)[0] ?? "", big: false, date: day(item.date) });
+    else
+      found.push({
+        posts: [item],
+        existing: null,
+        headline: item.title,
+        summary: item.text.split(/(?<=\.)\s/)[0] ?? "",
+        points: [],
+        why: "",
+        importance: 1,
+        date: day(item.date),
+      });
   }
   return found;
 }
 
+const order: Record<Kind, number> = { official: 0, news: 1, community: 2 };
+
 export const toLinks = (posts: Item[]): Link[] =>
-  [...posts]
-    .sort((a, b) => Number(b.kind === "official") - Number(a.kind === "official"))
-    .map((p) => ({ title: p.title, url: p.url, site: p.site }));
+  [...posts].sort((a, b) => order[a.kind] - order[b.kind]).map((p) => ({ title: p.title, url: p.url, site: p.site, kind: p.kind }));
