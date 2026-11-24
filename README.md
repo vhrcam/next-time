@@ -1,8 +1,8 @@
-# caught up
+# next time
 
 The announcements from the topics you follow, without the feed.
 
-Staying off social media keeps you away from the noise, but it also means missing real news about the things you work on or care about: a new AI model, a framework release, a game's release date. caught up fills that gap. You pick topics, it reads their official channels and the news once a day, and it gives you a short report of what was actually announced. When nothing happened, it says so, so you know you didn't miss anything.
+Staying off social media keeps you away from the noise, but it also means missing real news about the things you work on or care about: a new AI model, a framework release, a game's release date. next time fills that gap. You pick topics, it reads their official channels and the news once a day, and it gives you a short report of what was actually announced. When nothing happened, it says so, so you know you didn't miss anything.
 
 ## What it does
 

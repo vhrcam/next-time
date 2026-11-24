@@ -38,7 +38,7 @@ const longDay = (t: number) => new Date(t).toLocaleDateString("en-US", { weekday
 
 // Reads the saved topics (plus any shared in the link) and when this person last looked, once per browser session.
 function start() {
-  let picked = load<Picked[]>("caughtup:topics", []);
+  let picked = load<Picked[]>("nexttime:topics", []);
   const shared = new URLSearchParams(location.search).get("t");
   if (shared) {
     const extra = shared
@@ -46,16 +46,16 @@ function start() {
       .filter((id) => id && !picked.some((p) => p.id === id))
       .map((id) => ({ id, name: presetById.get(id)?.name ?? "" }));
     picked = [...picked, ...extra];
-    save("caughtup:topics", picked);
+    save("nexttime:topics", picked);
     history.replaceState(null, "", location.pathname);
   }
-  let since = load<number | null>("caughtup:since", null, true);
+  let since = load<number | null>("nexttime:since", null, true);
   if (since == null) {
-    since = load<number>("caughtup:visit", 0);
-    save("caughtup:since", since, true);
+    since = load<number>("nexttime:visit", 0);
+    save("nexttime:since", since, true);
   }
   const now = Date.now();
-  save("caughtup:visit", now);
+  save("nexttime:visit", now);
   return { picked, since, now };
 }
 
@@ -95,7 +95,7 @@ export default function Report() {
       if (!live) return;
       if (d.topics.some((t) => !picked.find((p) => p.id === t.id)?.name)) {
         const named = picked.map((p) => ({ ...p, name: d.topics.find((t) => t.id === p.id)?.name ?? p.name }));
-        save("caughtup:topics", named);
+        save("nexttime:topics", named);
       }
       const queue = d.topics.filter((t) => t.stale && !t.checking && !tried.current.has(t.id)).map((t) => t.id);
       queue.forEach((id) => tried.current.add(id));
@@ -120,7 +120,7 @@ export default function Report() {
 
   function change(next: Picked[]) {
     setPicked(next);
-    save("caughtup:topics", next);
+    save("nexttime:topics", next);
   }
 
   async function copyLink() {
@@ -156,7 +156,7 @@ export default function Report() {
   return (
     <main className="mx-auto min-h-screen w-full max-w-2xl px-5 pb-16 pt-6">
       <header className="flex items-center justify-between">
-        <span className="font-serif text-xl italic tracking-tight">caught up</span>
+        <span className="font-serif text-xl italic tracking-tight">next time</span>
         {!editing && (
           <button onClick={() => setEditing(true)} className="rounded-full border border-line px-3 py-1 text-sm text-muted hover:text-ink">
             Topics
@@ -235,7 +235,7 @@ export default function Report() {
 
             <footer className="mt-16 border-t border-line pt-4 text-xs leading-relaxed text-faint">
               <p>
-                caught up reads official sites and channels, Google News and Hacker News once a day. It keeps announcements and leaves out
+                next time reads official sites and channels, Google News and Hacker News once a day. It keeps announcements and leaves out
                 opinions, rumors, leaks and reactions. Headlines link to the original source.
               </p>
               <button onClick={copyLink} className="mt-2 underline underline-offset-2 hover:text-ink">

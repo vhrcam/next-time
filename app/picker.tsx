@@ -40,7 +40,7 @@ export default function Picker({ picked, first, onChange, onDone }: { picked: Pi
     <section>
       <h2 className="font-serif text-3xl leading-tight">{first ? "What do you want to keep up with?" : "Your topics"}</h2>
       <p className="mt-2 max-w-prose text-sm leading-relaxed text-muted">
-        Pick the things you follow for work or for fun. Every day caught up reads their official channels and the news, keeps only real
+        Pick the things you follow for work or for fun. next time reads their official channels and the news once a day, keeps only real
         announcements (launches, updates, release dates, official statements), and leaves out opinions, rumors and reactions.
       </p>
 

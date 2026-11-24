@@ -6,7 +6,7 @@ const geist = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const newsreader = Newsreader({ variable: "--font-newsreader", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "caught up",
+  title: "next time",
   description: "The announcements from the topics you follow, without the feed. Official news, checked daily, in one short report.",
 };
 
