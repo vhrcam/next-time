@@ -11,6 +11,7 @@ export async function POST(req: Request) {
   if (topic.checked && Date.now() - topic.checked < 3600000) return Response.json({ skipped: true, added: 0 });
   try {
     const result = await refresh(topic);
+    if (result.failed.length) console.warn("check problems", id, result.failed);
     return Response.json({ skipped: result.skipped, added: result.added });
   } catch (e) {
     console.error("check failed", id, e);
