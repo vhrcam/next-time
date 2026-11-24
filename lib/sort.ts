@@ -64,7 +64,7 @@ Pick out the real announcements and news among the new posts.
 - If a post covers a story already in the report, set existing to that story's id (like "S12") and don't repeat the story. Otherwise leave existing empty.
 - headline: plain and factual, under 12 words, no hype, no clickbait, no emoji.
 - summary: one sentence with the key facts: what changed, who it's for, when it's out. Never include plot or story details of games, shows or films.
-- big: true only for news most people following ${topic.name} would want to hear about, like a major new product or model, a release date, or a big price change. Point releases, small features and minor partnerships are not big.
+- big: true only for news most people following ${topic.name} would want to hear about, like a major new product or model, a release date, or a big price change. Point releases, small features, partnerships, TV and content lineups, awards and outages are not big. Be strict: in a typical two weeks only one to three stories are big.
 - date: the day it happened, YYYY-MM-DD.
 - Returning no stories is fine when nothing qualifies.`;
 }
