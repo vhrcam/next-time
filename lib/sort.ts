@@ -12,7 +12,9 @@ export type Found = {
   date: string;
 };
 
-const models = [process.env.GEMINI_MODEL || "gemini-3.5-flash-lite", "gemini-3.5-flash"];
+const light = process.env.GEMINI_MODEL || "gemini-3.5-flash-lite";
+// The free tier allows only a few calls a minute, so after both models refuse, wait a moment and ask the light one again.
+const models = [light, "gemini-3.5-flash", light];
 let client: GoogleGenAI | undefined;
 
 const day = (t: number | null) => new Date(t ?? Date.now()).toISOString().slice(0, 10);
@@ -72,7 +74,8 @@ Pick out the real announcements and news among the new posts.
 export async function sortWithAI(topic: Topic, items: Item[], recent: Story[]): Promise<Found[]> {
   client ??= new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY, httpOptions: { retryOptions: { attempts: 1 } } });
   let lastError: unknown;
-  for (const model of models) {
+  for (const [n, model] of models.entries()) {
+    if (n === 2) await new Promise((r) => setTimeout(r, 8000));
     try {
       const res = await client.models.generateContent({
         model,
