@@ -26,9 +26,8 @@ export async function refresh(topic: TopicRow) {
       const recent = await storiesFor([topic.id], Date.now() - 21 * 86400000);
       try {
         if (!process.env.GEMINI_API_KEY) throw new Error("no key");
-        found = await sortWithAI(topic, list, recent);
+        found = await sortWithAI(topic, list, recent, failed);
       } catch (e) {
-        if (process.env.GEMINI_API_KEY) failed.push(`ai: ${e instanceof Error ? e.message.slice(0, 120) : e}`);
         found = sortByRules(list);
         used = list.filter((i) => i.kind === "official").map((i) => i.url);
       }

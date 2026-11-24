@@ -80,7 +80,8 @@ Find the real developments in the new posts. The test is whether something happe
 - Returning no developments is fine when nothing qualifies.`;
 }
 
-export async function sortWithAI(topic: Topic, items: Item[], recent: Story[]): Promise<Found[]> {
+// Failed attempts are added to notes so slow or refused calls show up in the check log.
+export async function sortWithAI(topic: Topic, items: Item[], recent: Story[], notes: string[] = []): Promise<Found[]> {
   client ??= new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY, httpOptions: { retryOptions: { attempts: 1 } } });
   const deadline = Date.now() + 100000;
   let lastError: unknown = new Error("AI timed out");
@@ -88,6 +89,7 @@ export async function sortWithAI(topic: Topic, items: Item[], recent: Story[]): 
     if (n === 2) await new Promise((r) => setTimeout(r, 8000));
     const left = deadline - Date.now();
     if (left < 10000) break;
+    const started = Date.now();
     try {
       const res = await client.models.generateContent({
         model,
@@ -114,6 +116,7 @@ export async function sortWithAI(topic: Topic, items: Item[], recent: Story[]): 
         .filter((s) => s.posts.length && (s.existing || s.headline));
     } catch (e) {
       lastError = e;
+      notes.push(`ai ${model} failed after ${Math.round((Date.now() - started) / 1000)}s: ${String(e instanceof Error ? e.message : e).slice(0, 100)}`);
     }
   }
   throw lastError;
