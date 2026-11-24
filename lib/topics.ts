@@ -6,12 +6,25 @@ export type Topic = {
   group: string;
   about: string;
   sources: Source[];
+  broad?: boolean;
   custom?: boolean;
 };
 
 export const groups = ["AI", "Tech", "Developers", "Games", "Science"];
 
 export const presets: Topic[] = [
+  {
+    id: "ai",
+    name: "Artificial intelligence",
+    group: "AI",
+    broad: true,
+    about: "the biggest developments across the AI industry: new models, products, rules and deals",
+    sources: [
+      { type: "feed", url: "https://techcrunch.com/category/artificial-intelligence/feed/", site: "TechCrunch", kind: "news" },
+      { type: "news", q: '"AI model" launch OR released OR announces' },
+      { type: "hn", q: "AI", min: 300 },
+    ],
+  },
   {
     id: "claude",
     name: "Claude & Anthropic",
@@ -48,14 +61,15 @@ export const presets: Topic[] = [
     ],
   },
   {
-    id: "ai",
-    name: "AI in general",
-    group: "AI",
-    about: "the biggest releases and changes across the AI industry: new models, products, rules and deals",
+    id: "gadgets",
+    name: "Emerging technology",
+    group: "Tech",
+    broad: true,
+    about: "notable new technology being announced or released: devices, chips, robotics, energy and other emerging tech",
     sources: [
-      { type: "feed", url: "https://techcrunch.com/category/artificial-intelligence/feed/", site: "TechCrunch", kind: "news" },
-      { type: "news", q: '"AI model" launch OR released OR announces' },
-      { type: "hn", q: "AI", min: 300 },
+      { type: "feed", url: "https://www.theverge.com/rss/index.xml", site: "The Verge", kind: "news" },
+      { type: "feed", url: "https://techcrunch.com/feed/", site: "TechCrunch", kind: "news" },
+      { type: "news", q: "unveils new device OR gadget launch OR release date" },
     ],
   },
   {
@@ -101,14 +115,27 @@ export const presets: Topic[] = [
     ],
   },
   {
-    id: "gadgets",
-    name: "New tech & gadgets",
-    group: "Tech",
-    about: "notable new consumer tech and gadgets being announced or released",
+    id: "software",
+    name: "Software development",
+    group: "Developers",
+    broad: true,
+    about: "the biggest developments across software development: programming languages, major frameworks, open source and how developers work",
     sources: [
-      { type: "feed", url: "https://www.theverge.com/rss/index.xml", site: "The Verge", kind: "news" },
-      { type: "feed", url: "https://techcrunch.com/feed/", site: "TechCrunch", kind: "news" },
-      { type: "news", q: "unveils new device OR gadget launch OR release date" },
+      { type: "feed", url: "https://feed.infoq.com/", site: "InfoQ", kind: "news" },
+      { type: "news", q: '"programming language" release OR "open source" release OR "software developers"' },
+      { type: "hn", q: "programming OR open source OR software engineering", min: 250 },
+    ],
+  },
+  {
+    id: "python",
+    name: "Python",
+    group: "Developers",
+    about: "the Python language and ecosystem: releases, PEPs, packaging, major libraries and the Python Software Foundation",
+    sources: [
+      { type: "feed", url: "https://pythoninsider.blogspot.com/feeds/posts/default", site: "Python Insider" },
+      { type: "feed", url: "https://pyfound.blogspot.com/feeds/posts/default", site: "Python Software Foundation" },
+      { type: "news", q: '"Python 3" OR "Python release" OR "Python Software Foundation"' },
+      { type: "hn", q: "Python", min: 150 },
     ],
   },
   {
@@ -125,9 +152,9 @@ export const presets: Topic[] = [
   },
   {
     id: "github",
-    name: "GitHub & dev tools",
+    name: "Developer tools",
     group: "Developers",
-    about: "GitHub features and changes, and big releases of developer tools and editors",
+    about: "big releases and changes in developer tools: GitHub, editors, terminals and AI coding tools",
     sources: [
       { type: "feed", url: "https://github.blog/feed/", site: "GitHub blog" },
       { type: "news", q: "GitHub announces OR VS Code release" },
@@ -157,9 +184,10 @@ export const presets: Topic[] = [
   },
   {
     id: "games",
-    name: "Video games",
+    name: "Gaming industry",
     group: "Games",
-    about: "the biggest video game announcements: new games revealed, release dates, delays, trailers and console news",
+    broad: true,
+    about: "the biggest video game developments: new games revealed, release dates, delays, official trailers, console and studio news",
     sources: [
       { type: "feed", url: "https://blog.playstation.com/feed/", site: "PlayStation Blog" },
       { type: "feed", url: "https://news.xbox.com/en-us/feed/", site: "Xbox Wire" },
@@ -169,7 +197,7 @@ export const presets: Topic[] = [
   },
   {
     id: "gta6",
-    name: "GTA 6",
+    name: "Grand Theft Auto VI",
     group: "Games",
     about: "official news about Grand Theft Auto VI from Rockstar Games: release date, trailers, editions, platforms",
     sources: [
@@ -225,6 +253,7 @@ export const presets: Topic[] = [
     id: "space",
     name: "Space & rockets",
     group: "Science",
+    broad: true,
     about: "space missions, rocket launches and NASA and SpaceX announcements",
     sources: [
       { type: "feed", url: "https://www.nasa.gov/news-release/feed/", site: "NASA" },
