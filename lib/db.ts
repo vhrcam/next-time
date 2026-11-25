@@ -40,6 +40,7 @@ function setup() {
         found_at integer not null, links text not null default '[]')`,
       `create index if not exists stories_topic on stories (topic_id, found_at)`,
       `create table if not exists seen (topic_id text not null, url text not null, at integer not null, primary key (topic_id, url))`,
+      `create table if not exists searches (q text primary key, results text not null, at integer not null)`,
     ],
     "write",
   );
@@ -80,6 +81,23 @@ export async function saveTopic(t: Topic) {
     `insert into topics (id, name, grp, about, sources, custom, created_at) values (?, ?, ?, ?, ?, ?, ?)
      on conflict (id) do update set name = excluded.name, grp = excluded.grp, about = excluded.about, sources = excluded.sources`,
     [t.id, t.name, t.group, t.about, JSON.stringify(t.sources), t.custom ? 1 : 0, Date.now()],
+  );
+}
+
+export async function getSearch(q: string, since: number) {
+  const rows = await run(`select results from searches where q = ? and at > ?`, [q, since]);
+  return (rows.rows[0]?.results as string | undefined) ?? null;
+}
+
+export async function searchesSince(since: number) {
+  const rows = await run(`select count(*) as n from searches where at > ?`, [since]);
+  return Number(rows.rows[0].n);
+}
+
+export async function saveSearch(q: string, results: unknown) {
+  await run(
+    `insert into searches (q, results, at) values (?, ?, ?) on conflict (q) do update set results = excluded.results, at = excluded.at`,
+    [q, JSON.stringify(results), Date.now()],
   );
 }
 

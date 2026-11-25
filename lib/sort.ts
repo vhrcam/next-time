@@ -18,8 +18,10 @@ type Raw = Omit<Found, "posts" | "existing"> & { posts: number[]; existing: stri
 
 const light = process.env.GEMINI_MODEL || "gemini-3.5-flash-lite";
 // The free tier allows only a few calls a minute, so after both models refuse, wait a moment and ask the light one again.
-const models = [light, "gemini-3.5-flash", light];
-let client: GoogleGenAI | undefined;
+export const models = [light, "gemini-3.5-flash", light];
+let shared: GoogleGenAI | undefined;
+export const gemini = () =>
+  (shared ??= new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY, httpOptions: { retryOptions: { attempts: 1 } } }));
 
 const day = (t: number | null) => new Date(t ?? Date.now()).toISOString().slice(0, 10);
 
@@ -82,7 +84,7 @@ Find the real developments in the new posts. The test is whether something happe
 
 // Failed attempts are added to notes so slow or refused calls show up in the check log.
 export async function sortWithAI(topic: Topic, items: Item[], recent: Story[], notes: string[] = []): Promise<Found[]> {
-  client ??= new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY, httpOptions: { retryOptions: { attempts: 1 } } });
+  const client = gemini();
   const deadline = Date.now() + 100000;
   let lastError: unknown = new Error("AI timed out");
   for (const [n, model] of models.entries()) {
