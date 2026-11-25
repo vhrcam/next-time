@@ -32,14 +32,25 @@ async function fromLink(link: string, name: string): Promise<Source> {
   return { type: "site", domain: host };
 }
 
-export async function makeTopic(input: { name?: string; words?: string; link?: string }): Promise<Topic> {
+// Hacker News only talks about tech, so other interests skip it.
+const techGroups = ["AI", "Tech", "Developers", "Science"];
+
+export async function makeTopic(input: { name?: string; words?: string; link?: string; group?: string; about?: string }): Promise<Topic> {
   const name = (input.name ?? "").trim().slice(0, 60);
   if (!name) throw new Error("Give the topic a name");
   const words = (input.words ?? "").trim().slice(0, 200) || (name.includes(" ") ? `"${name}"` : name);
+  const group = (input.group ?? "").trim().slice(0, 30) || "Other";
+  const about = (input.about ?? "").trim().slice(0, 200) || name;
   const sources: Source[] = [];
-  if (input.link?.trim()) sources.push(await fromLink(input.link.trim(), name));
-  sources.push({ type: "news", q: words }, { type: "hn", q: name, min: 50 });
+  // The link is the search's best guess, so one that doesn't load leaves the interest on news search.
+  if (input.link?.trim()) {
+    try {
+      sources.push(await fromLink(input.link.trim(), name));
+    } catch {}
+  }
+  sources.push({ type: "news", q: words });
+  if (techGroups.includes(group)) sources.push({ type: "hn", q: name, min: 50 });
   const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 30) || "topic";
   const hash = createHash("sha1").update(JSON.stringify(sources)).digest("hex").slice(0, 6);
-  return { id: `x-${slug}-${hash}`, name, group: "Yours", about: input.words?.trim() ? `${name} (searched as: ${words})` : name, sources, custom: true };
+  return { id: `x-${slug}-${hash}`, name, group, about, sources, custom: true };
 }
