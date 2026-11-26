@@ -637,6 +637,68 @@ export const presets: Topic[] = [
       { type: "news", q: 'Amazon announces OR "Amazon Prime"' },
     ],
   },
+  {
+    id: "cars",
+    name: "Cars",
+    group: "Cars",
+    broad: true,
+    about: "new models and reveals, prices, recalls and big auto industry news",
+    sources: [
+      { type: "feed", url: "https://www.caranddriver.com/rss/all.xml/", site: "Car and Driver", kind: "news" },
+      { type: "feed", url: "https://www.motor1.com/rss/news/all/", site: "Motor1", kind: "news" },
+      { type: "news", q: 'unveils OR "new model" OR recall car OR automaker' },
+    ],
+  },
+  {
+    id: "evs",
+    name: "Electric vehicles",
+    group: "Cars",
+    about: "new EV models, prices, charging networks, tax credits and battery news",
+    sources: [
+      { type: "feed", url: "https://electrek.co/feed/", site: "Electrek", kind: "news" },
+      { type: "news", q: '"electric vehicle" OR EV launch OR charging OR "tax credit"' },
+    ],
+  },
+  {
+    id: "tesla",
+    name: "Tesla",
+    group: "Cars",
+    about: "Tesla cars, prices, software updates, recalls, robotaxis and company news",
+    sources: [
+      { type: "feed", url: "https://electrek.co/feed/", site: "Electrek", kind: "news", match: "Tesla" },
+      { type: "news", q: "Tesla" },
+    ],
+  },
+  {
+    id: "ford",
+    name: "Ford",
+    group: "Cars",
+    about: "new Ford models, prices, recalls and company news",
+    sources: [
+      { type: "site", domain: "media.ford.com" },
+      { type: "news", q: '"Ford Motor" OR "Ford F-150" OR "Ford Mustang" OR "Ford Bronco"' },
+    ],
+  },
+  {
+    id: "toyota",
+    name: "Toyota",
+    group: "Cars",
+    about: "new Toyota and Lexus models, prices, recalls and company news",
+    sources: [
+      { type: "site", domain: "pressroom.toyota.com" },
+      { type: "news", q: "Toyota OR Lexus" },
+    ],
+  },
+  {
+    id: "car-recalls",
+    name: "Car recalls",
+    group: "Cars",
+    about: "vehicle recalls and safety investigations from NHTSA and automakers",
+    sources: [
+      { type: "site", domain: "nhtsa.gov" },
+      { type: "news", q: "recall NHTSA OR vehicles" },
+    ],
+  },
 ];
 
 export const presetById = new Map(presets.map((t) => [t.id, t]));
