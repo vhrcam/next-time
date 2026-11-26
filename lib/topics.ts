@@ -266,6 +266,17 @@ export const presets: Topic[] = [
     ],
   },
   {
+    id: "science",
+    name: "Science",
+    group: "Science",
+    broad: true,
+    about: "major scientific discoveries and research from leading journals, universities and agencies",
+    sources: [
+      { type: "feed", url: "https://www.sciencedaily.com/rss/top/science.xml", site: "ScienceDaily", kind: "news" },
+      { type: "news", q: '"scientists discover" OR "scientists find" OR breakthrough' },
+    ],
+  },
+  {
     id: "space",
     name: "Space & rockets",
     group: "Science",
@@ -553,6 +564,16 @@ export const presets: Topic[] = [
     sources: [
       { type: "site", domain: "fortnite.com" },
       { type: "news", q: "Fortnite" },
+    ],
+  },
+  {
+    id: "climate",
+    name: "Climate & weather",
+    group: "Science",
+    about: "major climate reports and agreements, temperature records, hurricane seasons and NOAA announcements",
+    sources: [
+      { type: "site", domain: "noaa.gov" },
+      { type: "news", q: 'NOAA OR "climate report" OR "hurricane season" OR "warmest year"' },
     ],
   },
 ];
