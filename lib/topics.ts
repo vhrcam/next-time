@@ -525,6 +525,36 @@ export const presets: Topic[] = [
       { type: "news", q: 'anime announced OR "release date" OR trailer' },
     ],
   },
+  {
+    id: "pokemon",
+    name: "Pokémon",
+    group: "Games",
+    about: "Pokémon games, the trading card game, the anime and official announcements and events",
+    sources: [
+      { type: "site", domain: "pokemon.com" },
+      { type: "news", q: "Pokémon OR Pokemon" },
+    ],
+  },
+  {
+    id: "minecraft",
+    name: "Minecraft",
+    group: "Games",
+    about: "Minecraft updates, new features, editions and official announcements",
+    sources: [
+      { type: "site", domain: "minecraft.net" },
+      { type: "news", q: "Minecraft" },
+    ],
+  },
+  {
+    id: "fortnite",
+    name: "Fortnite",
+    group: "Games",
+    about: "Fortnite seasons, updates, collaborations and Epic Games announcements",
+    sources: [
+      { type: "site", domain: "fortnite.com" },
+      { type: "news", q: "Fortnite" },
+    ],
+  },
 ];
 
 export const presetById = new Map(presets.map((t) => [t.id, t]));
