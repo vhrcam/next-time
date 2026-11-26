@@ -740,6 +740,42 @@ export const presets: Topic[] = [
       { type: "news", q: "Starbucks" },
     ],
   },
+  {
+    id: "health",
+    name: "Health",
+    group: "Health",
+    broad: true,
+    about: "major health news: FDA approvals and warnings, new guidelines and big findings from health agencies",
+    sources: [
+      { type: "feed", url: "https://www.fda.gov/about-fda/contact-fda/stay-informed/rss-feeds/press-releases/rss.xml", site: "FDA" },
+      { type: "feed", url: "https://www.statnews.com/feed/", site: "STAT", kind: "news" },
+      { type: "news", q: '"FDA approves" OR CDC OR "new guidelines" health' },
+    ],
+  },
+  {
+    id: "glp1",
+    name: "Weight-loss drugs",
+    group: "Health",
+    about: "Ozempic, Wegovy, Zepbound and other GLP-1 drugs: approvals, prices, coverage and shortages",
+    sources: [{ type: "news", q: "Ozempic OR Wegovy OR Zepbound OR GLP-1" }],
+  },
+  {
+    id: "medicare",
+    name: "Medicare",
+    group: "Health",
+    about: "Medicare premiums, coverage changes, enrollment dates and new rules",
+    sources: [
+      { type: "site", domain: "cms.gov" },
+      { type: "news", q: "Medicare premiums OR enrollment OR coverage" },
+    ],
+  },
+  {
+    id: "wearables",
+    name: "Fitness & wearables",
+    group: "Health",
+    about: "new fitness trackers and smartwatches and big updates from Apple Watch, Garmin, Fitbit, Oura and Whoop",
+    sources: [{ type: "news", q: '"Apple Watch" OR Garmin OR Fitbit OR Oura OR Whoop launch OR update' }],
+  },
 ];
 
 export const presetById = new Map(presets.map((t) => [t.id, t]));
