@@ -6,7 +6,7 @@ Staying off social media keeps you away from the noise, but it also means missin
 
 ## What it does
 
-- **Pick interests**, a whole field or specific subjects, from a catalog (AI, tech companies, software development, games, space) or add your own with a name, search words and an optional official site or YouTube channel.
+- **Pick interests**, a whole field or specific subjects, from a catalog (AI, tech companies, software development, games, space) or search for anything else, like a sport, an artist or a show, and it's sorted into a category for you.
 - **Announcements only.** Launches, releases, updates, release dates, official statements, price changes. Opinions, rumors, leaks, reactions, reviews and how-tos are left out.
 - **One development per event.** Ten articles about the same launch become one card with ten sources, explained as what happened, what's new and why it matters.
 - **Briefings on your schedule**: daily, every two or three days, weekly, major developments only, or when you ask, capped at the number you choose. Major developments can arrive early, and Saved and Archive keep what you want to revisit.
@@ -14,9 +14,9 @@ Staying off social media keeps you away from the noise, but it also means missin
 
 ## How it works
 
-1. Each interest has a list of sources: official RSS feeds and YouTube channels, official sites through Google News `site:` search, Google News search, and Hacker News.
+1. Each interest has a list of sources: official RSS feeds and YouTube channels, official sites through Google News `site:` search, Google News search, and Hacker News for tech interests.
 2. New posts are shortlisted (official first) and sent to Gemini in one call per topic. It keeps the real developments, merges posts about the same event, writes a plain headline with what happened, what's new and why it matters, and rates how important it is.
-3. Stories are saved per topic and shared by everyone who follows it, so the AI cost grows with the number of topics, not the number of people.
+3. Stories are saved per topic and shared by everyone who follows it, so the AI cost grows with the number of topics, not the number of people. Searches are shared the same way and kept for a week.
 4. A daily cron checks every topic someone opened in the last 30 days. A topic that hasn't been checked in 12 hours is checked when someone opens it, at most once an hour.
 
 If the AI is unavailable, only posts from official channels are used, and the rest wait for the next check.
