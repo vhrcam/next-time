@@ -699,6 +699,47 @@ export const presets: Topic[] = [
       { type: "news", q: "recall NHTSA OR vehicles" },
     ],
   },
+  {
+    id: "food",
+    name: "Food & restaurants",
+    group: "Food",
+    broad: true,
+    about: "new menu items, restaurant chain news, openings and closings and price changes",
+    sources: [
+      { type: "feed", url: "https://www.eater.com/rss/index.xml", site: "Eater", kind: "news" },
+      { type: "news", q: '"new menu" OR "limited time" OR closing OR "price increase" restaurant OR chain' },
+    ],
+  },
+  {
+    id: "food-recalls",
+    name: "Food recalls",
+    group: "Food",
+    about: "food and drink recalls and safety alerts from the FDA and USDA",
+    sources: [
+      { type: "feed", url: "https://www.fda.gov/about-fda/contact-fda/stay-informed/rss-feeds/food-safety-recalls/rss.xml", site: "FDA" },
+      { type: "news", q: '"food recall" OR recalled FDA OR USDA' },
+    ],
+  },
+  {
+    id: "mcdonalds",
+    name: "McDonald's",
+    group: "Food",
+    about: "McDonald's new and returning menu items, price changes and company news",
+    sources: [
+      { type: "site", domain: "corporate.mcdonalds.com" },
+      { type: "news", q: '"McDonald\'s"' },
+    ],
+  },
+  {
+    id: "starbucks",
+    name: "Starbucks",
+    group: "Food",
+    about: "Starbucks new and seasonal drinks, menu and price changes, rewards changes and company news",
+    sources: [
+      { type: "site", domain: "about.starbucks.com" },
+      { type: "news", q: "Starbucks" },
+    ],
+  },
 ];
 
 export const presetById = new Map(presets.map((t) => [t.id, t]));
