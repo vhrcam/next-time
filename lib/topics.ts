@@ -776,6 +776,42 @@ export const presets: Topic[] = [
     about: "new fitness trackers and smartwatches and big updates from Apple Watch, Garmin, Fitbit, Oura and Whoop",
     sources: [{ type: "news", q: '"Apple Watch" OR Garmin OR Fitbit OR Oura OR Whoop launch OR update' }],
   },
+  {
+    id: "books",
+    name: "Books",
+    group: "Books",
+    broad: true,
+    about: "big new releases, book awards, bestsellers and screen adaptations",
+    sources: [
+      { type: "feed", url: "https://www.publishersweekly.com/pw/feeds/recent/index.xml", site: "Publishers Weekly", kind: "news" },
+      { type: "feed", url: "https://bookriot.com/feed/", site: "Book Riot", kind: "news" },
+      { type: "news", q: '"new novel" OR "book award" OR "book adaptation" OR bestseller' },
+    ],
+  },
+  {
+    id: "sanderson",
+    name: "Brandon Sanderson",
+    group: "Books",
+    about: "Brandon Sanderson's new books, release dates, adaptations and Dragonsteel announcements",
+    sources: [
+      { type: "site", domain: "brandonsanderson.com" },
+      { type: "news", q: '"Brandon Sanderson"' },
+    ],
+  },
+  {
+    id: "stephen-king",
+    name: "Stephen King",
+    group: "Books",
+    about: "Stephen King's new books, release dates and screen adaptations",
+    sources: [{ type: "news", q: '"Stephen King"' }],
+  },
+  {
+    id: "sarah-j-maas",
+    name: "Sarah J. Maas",
+    group: "Books",
+    about: "Sarah J. Maas's new books, release dates and screen adaptations",
+    sources: [{ type: "news", q: '"Sarah J. Maas"' }],
+  },
 ];
 
 export const presetById = new Map(presets.map((t) => [t.id, t]));
