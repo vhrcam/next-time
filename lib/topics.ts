@@ -462,6 +462,69 @@ export const presets: Topic[] = [
       { type: "news", q: "Drake rapper OR album OR tour" },
     ],
   },
+  {
+    id: "movies",
+    name: "Movies",
+    group: "Movies & TV",
+    broad: true,
+    about: "release dates, trailers, casting, box office records and award winners for major films",
+    sources: [
+      { type: "feed", url: "https://variety.com/feed/", site: "Variety", kind: "news" },
+      { type: "feed", url: "https://deadline.com/feed/", site: "Deadline", kind: "news" },
+      { type: "news", q: '"release date" OR "first trailer" OR "box office" movie' },
+    ],
+  },
+  {
+    id: "tv",
+    name: "TV & streaming",
+    group: "Movies & TV",
+    broad: true,
+    about: "new seasons, renewals and cancellations, premiere dates and price changes on Netflix, Disney+, HBO Max and other services",
+    sources: [
+      { type: "feed", url: "https://www.hollywoodreporter.com/feed/", site: "The Hollywood Reporter", kind: "news" },
+      { type: "news", q: '"renewed for" OR canceled OR "premiere date" OR "price increase" Netflix OR "Disney+" OR "HBO Max" OR Hulu' },
+    ],
+  },
+  {
+    id: "marvel",
+    name: "Marvel",
+    group: "Movies & TV",
+    about: "Marvel Studios movies and series: release dates, trailers, casting and official announcements",
+    sources: [
+      { type: "site", domain: "marvel.com" },
+      { type: "news", q: '"Marvel Studios" OR MCU' },
+    ],
+  },
+  {
+    id: "star-wars",
+    name: "Star Wars",
+    group: "Movies & TV",
+    about: "Star Wars movies and series: release dates, trailers, casting and official announcements",
+    sources: [
+      { type: "site", domain: "starwars.com" },
+      { type: "news", q: '"Star Wars"' },
+    ],
+  },
+  {
+    id: "netflix",
+    name: "Netflix",
+    group: "Movies & TV",
+    about: "Netflix prices and plans, new features, big releases and company news",
+    sources: [
+      { type: "site", domain: "about.netflix.com" },
+      { type: "news", q: "Netflix" },
+    ],
+  },
+  {
+    id: "anime",
+    name: "Anime",
+    group: "Movies & TV",
+    about: "new anime series and seasons, release dates, trailers and streaming news",
+    sources: [
+      { type: "feed", url: "https://www.animenewsnetwork.com/news/rss.xml?ann-edition=us", site: "Anime News Network", kind: "news" },
+      { type: "news", q: 'anime announced OR "release date" OR trailer' },
+    ],
+  },
 ];
 
 export const presetById = new Map(presets.map((t) => [t.id, t]));
