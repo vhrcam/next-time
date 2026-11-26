@@ -1,6 +1,6 @@
 # next time
 
-Stay informed without staying online: the developments in what you follow, without the feed. Live at [nexttimeapp.vercel.app](https://nexttimeapp.vercel.app).
+Stay informed without staying online: the developments in what you follow, without the feed. Live at [nexttime-ig.vercel.app](https://nexttime-ig.vercel.app).
 
 Staying off social media keeps you away from the noise, but it also means missing real news about the things you work on or care about: a new AI model, a framework release, a game's release date. next time fills that gap. You pick interests, it reads their official channels and the news once a day, and it gives you a short briefing of what actually happened, on your schedule. When nothing happened, it says so, so you know you didn't miss anything.
 
