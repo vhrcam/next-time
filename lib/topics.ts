@@ -854,6 +854,61 @@ export const presets: Topic[] = [
       { type: "news", q: "beauty OR skincare launch OR Sephora OR Ulta" },
     ],
   },
+  {
+    id: "travel",
+    name: "Travel",
+    group: "Travel",
+    broad: true,
+    about: "big travel news: airline, airport and hotel changes, new routes and travel rules",
+    sources: [
+      { type: "feed", url: "https://thepointsguy.com/feed", site: "The Points Guy", kind: "news" },
+      { type: "news", q: 'airline OR airport OR TSA "new route" OR fee OR rule' },
+    ],
+  },
+  {
+    id: "disney-parks",
+    name: "Disney Parks",
+    group: "Travel",
+    about: "Disney World, Disneyland and Disney Cruise Line: new rides, openings, ticket prices and events",
+    sources: [
+      { type: "feed", url: "https://disneyparksblog.com/feed/", site: "Disney Parks Blog" },
+      { type: "news", q: '"Disney World" OR Disneyland OR "Disney Parks"' },
+    ],
+  },
+  {
+    id: "universal",
+    name: "Universal parks",
+    group: "Travel",
+    about: "Universal Orlando, Universal Studios Hollywood and Epic Universe: new rides, openings, prices and events",
+    sources: [
+      { type: "feed", url: "https://blog.discoveruniversal.com/feed/", site: "Universal Parks Blog" },
+      { type: "news", q: '"Universal Orlando" OR "Universal Studios" OR "Epic Universe"' },
+    ],
+  },
+  {
+    id: "airlines",
+    name: "Airlines",
+    group: "Travel",
+    about: "airline fees, new routes, policy changes, mergers and major disruptions",
+    sources: [{ type: "news", q: "airline fee OR route OR policy OR merger OR outage" }],
+  },
+  {
+    id: "travel-rules",
+    name: "Travel rules",
+    group: "Travel",
+    about: "TSA, passport, REAL ID and visa rule changes for travelers",
+    sources: [
+      { type: "site", domain: "tsa.gov" },
+      { type: "news", q: 'TSA OR passport OR "REAL ID" OR visa rule OR change' },
+    ],
+  },
+  {
+    id: "cruises",
+    name: "Cruises",
+    group: "Travel",
+    about: "new ships and itineraries and price and policy changes from major cruise lines",
+    sources: [{ type: "news", q: '"Royal Caribbean" OR "Carnival Cruise" OR "Norwegian Cruise" OR "cruise line"' }],
+  },
 ];
 
 export const presetById = new Map(presets.map((t) => [t.id, t]));
