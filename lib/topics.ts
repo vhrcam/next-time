@@ -576,6 +576,67 @@ export const presets: Topic[] = [
       { type: "news", q: 'NOAA OR "climate report" OR "hurricane season" OR "warmest year"' },
     ],
   },
+  {
+    id: "business",
+    name: "Business",
+    group: "Money & business",
+    broad: true,
+    about: "major company news: mergers and acquisitions, layoffs, bankruptcies, leadership changes and big launches",
+    sources: [
+      { type: "feed", url: "https://www.cnbc.com/id/10001147/device/rss/rss.html", site: "CNBC", kind: "news" },
+      { type: "news", q: 'acquires OR merger OR layoffs OR bankruptcy OR "steps down" company' },
+    ],
+  },
+  {
+    id: "fed",
+    name: "Interest rates & the Fed",
+    group: "Money & business",
+    about: "Federal Reserve rate decisions and statements and what they mean for loans, mortgages and savings",
+    sources: [
+      { type: "feed", url: "https://www.federalreserve.gov/feeds/press_monetary.xml", site: "Federal Reserve" },
+      { type: "news", q: '"Federal Reserve" rates' },
+    ],
+  },
+  {
+    id: "taxes",
+    name: "Taxes & the IRS",
+    group: "Money & business",
+    about: "IRS deadlines, tax rule and bracket changes, refunds and new ways to file",
+    sources: [
+      { type: "site", domain: "irs.gov" },
+      { type: "news", q: 'IRS announces OR "tax deadline" OR "tax brackets" OR "tax refund"' },
+    ],
+  },
+  {
+    id: "social-security",
+    name: "Social Security",
+    group: "Money & business",
+    about: "Social Security benefit changes, cost-of-living increases, payment dates and rule changes",
+    sources: [
+      { type: "site", domain: "ssa.gov" },
+      { type: "news", q: '"Social Security" COLA OR benefits OR SSA' },
+    ],
+  },
+  {
+    id: "crypto",
+    name: "Bitcoin & crypto",
+    group: "Money & business",
+    about: "major crypto news: regulation, ETF decisions, exchange news and big launches",
+    sources: [
+      { type: "feed", url: "https://www.coindesk.com/arc/outboundfeeds/rss", site: "CoinDesk", kind: "news" },
+      { type: "news", q: "Bitcoin OR crypto SEC OR ETF OR exchange OR regulation" },
+    ],
+  },
+  {
+    id: "amazon",
+    name: "Amazon",
+    group: "Money & business",
+    about: "Amazon prices and Prime changes, Prime Day dates, new devices and services and company news",
+    sources: [
+      { type: "site", domain: "aboutamazon.com" },
+      { type: "news", q: 'Amazon announces OR "Amazon Prime"' },
+    ],
+  },
 ];
 
 export const presetById = new Map(presets.map((t) => [t.id, t]));
