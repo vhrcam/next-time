@@ -20,12 +20,12 @@ async function post(url: string, body: unknown) {
   return data;
 }
 
-// Typing a category's name shows the whole category. Otherwise a listed interest shows when a word in its name
-// starts with the search or its description uses the search as a whole word.
+// A whole category shows when a word in its name starts with the search. Otherwise a listed interest shows when a word
+// in its name starts with the search or its description uses the search as a whole word.
 function listed(q: string) {
   const start = new RegExp(`\\b${escape(q)}`, "i");
   const word = new RegExp(`\\b${escape(q)}\\b`, "i");
-  return presets.filter((t) => t.group.toLowerCase() === q || t.id.startsWith(q) || start.test(t.name) || word.test(t.about));
+  return presets.filter((t) => start.test(t.group) || t.id.startsWith(q) || start.test(t.name) || word.test(t.about));
 }
 
 // The app's own categories first, in their usual order, then the rest alphabetically.
@@ -65,21 +65,29 @@ function Tile({ item }: { item: Item }) {
   );
 }
 
-function Categories({ items }: { items: Item[] }) {
+function Categories({ items, limit, more }: { items: Item[]; limit?: number; more?: (group: string) => void }) {
   return (
     <div className="space-y-6">
-      {[...new Set(items.map((i) => i.group))].sort(order).map((g) => (
-        <div key={g}>
-          <h3 className="mb-2 text-[13px] font-medium text-muted">{g}</h3>
-          <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-            {items
-              .filter((i) => i.group === g)
-              .map((i) => (
+      {[...new Set(items.map((i) => i.group))].sort(order).map((g) => {
+        const all = items.filter((i) => i.group === g);
+        return (
+          <div key={g}>
+            <div className="mb-2 flex items-baseline justify-between gap-3">
+              <h3 className="text-[13px] font-medium text-muted">{g}</h3>
+              {more && limit != null && all.length > limit && (
+                <button onClick={() => more(g)} className="text-xs text-faint transition-colors hover:text-ink">
+                  See all
+                </button>
+              )}
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+              {all.slice(0, limit).map((i) => (
                 <Tile key={i.key} item={i} />
               ))}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -90,6 +98,10 @@ export default function InterestsPage() {
   const [text, setText] = useState("");
   const [answer, setAnswer] = useState<(Results & { q: string }) | null>(null);
   const [searching, setSearching] = useState(false);
+  const [category, setCategory] = useState("");
+  const [browsed, setBrowsed] = useState<Record<string, Results>>({});
+  const [loading, setLoading] = useState<string[]>([]);
+  const [failed, setFailed] = useState("");
   const [adding, setAdding] = useState("");
   const [error, setError] = useState("");
 
@@ -110,6 +122,23 @@ export default function InterestsPage() {
       setError(err instanceof Error && err.message ? err.message : "Couldn't search right now");
     }
     setSearching(false);
+  }
+
+  // Each category asks once for more interests beyond its starters; an empty category means All.
+  async function browse(c: string) {
+    setText("");
+    setCategory(c);
+    setFailed("");
+    if (!c || browsed[c] || loading.includes(c)) return;
+    setLoading((all) => [...all, c]);
+    try {
+      const data: Results = await post("/api/find", { q: c, browse: true });
+      if (data.offline) throw new Error("offline");
+      setBrowsed((all) => ({ ...all, [c]: data }));
+    } catch {
+      setFailed(c);
+    }
+    setLoading((all) => all.filter((x) => x !== c));
   }
 
   async function follow(m: Match) {
@@ -169,13 +198,20 @@ export default function InterestsPage() {
             ? ""
             : `Nothing found for ${said}. Try another name for it.`;
 
+  const browsing = [...presets.filter((t) => t.group === category).map(fromPreset), ...(browsed[category]?.matches ?? []).map(fromMatch)];
+  const browseNote = loading.includes(category)
+    ? `Finding more ${category} interests…`
+    : failed === category
+      ? "Couldn't find more right now. Try again in a minute."
+      : "";
+
   return (
     <>
       <PageHead title="My interests">
-        <p>Search for anything you want to keep up with: a sport, a team, an artist, a show, a game or a company. Your briefing only includes what you follow.</p>
+        <p>Search for anything you want to keep up with, like a sport, a team, an artist, a show, a game or a company, or browse a category. Your briefing only includes what you follow.</p>
       </PageHead>
 
-      <form onSubmit={search} className="mb-10 max-w-2xl">
+      <form onSubmit={search} className="mb-4 max-w-2xl">
         <div className="flex gap-2">
           <input
             className={field}
@@ -183,7 +219,10 @@ export default function InterestsPage() {
             aria-label="Search for an interest"
             placeholder="Search, like AI, Formula 1 or Taylor Swift"
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={(e) => {
+              setText(e.target.value);
+              setCategory("");
+            }}
             maxLength={80}
           />
           <button disabled={searching || !looking} className={`${primary} shrink-0`}>
@@ -193,12 +232,35 @@ export default function InterestsPage() {
         {(error || status) && <p className={`mt-2 text-sm ${error ? "text-accent" : "text-muted"}`}>{error || status}</p>}
       </form>
 
+      <div className="-mx-4 mb-10 flex gap-2 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
+        {["All", ...groups].map((c) => {
+          const value = c === "All" ? "" : c;
+          const on = !looking && category === value;
+          return (
+            <button
+              key={c}
+              onClick={() => browse(value)}
+              aria-pressed={on}
+              className={`shrink-0 rounded-[5px] border px-3 py-1.5 text-[13px] transition-colors ${
+                on ? "border-ink bg-ink font-medium text-bg" : "border-line bg-surface text-muted hover:border-strong hover:text-ink"
+              }`}
+            >
+              {c}
+            </button>
+          );
+        })}
+      </div>
+
       {looking ? (
         results.length > 0 && (
           <Block title="Results">
             <Categories items={results} />
           </Block>
         )
+      ) : category ? (
+        <Block title="Suggestions" note={browseNote}>
+          <Categories items={browsing} />
+        </Block>
       ) : (
         <>
           {mine.length > 0 && (
@@ -206,8 +268,15 @@ export default function InterestsPage() {
               <Categories items={mine} />
             </Block>
           )}
-          <Block title="Suggestions" note="A few to start with. Search for anything else.">
-            <Categories items={presets.map(fromPreset)} />
+          <Block title="Suggestions" note="A few from each category. Search for anything else.">
+            <Categories
+              items={presets.map(fromPreset)}
+              limit={3}
+              more={(g) => {
+                browse(g);
+                window.scrollTo({ top: 0 });
+              }}
+            />
           </Block>
         </>
       )}
