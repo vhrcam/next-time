@@ -812,6 +812,48 @@ export const presets: Topic[] = [
     about: "Sarah J. Maas's new books, release dates and screen adaptations",
     sources: [{ type: "news", q: '"Sarah J. Maas"' }],
   },
+  {
+    id: "fashion",
+    name: "Fashion",
+    group: "Fashion & beauty",
+    broad: true,
+    about: "major collections and fashion weeks, designer moves and big brand launches",
+    sources: [
+      { type: "feed", url: "https://www.vogue.com/feed/rss", site: "Vogue", kind: "news" },
+      { type: "feed", url: "https://wwd.com/feed/", site: "WWD", kind: "news" },
+      { type: "news", q: '"creative director" OR "fashion week" OR collection launch' },
+    ],
+  },
+  {
+    id: "sneakers",
+    name: "Sneakers",
+    group: "Fashion & beauty",
+    about: "sneaker release dates and new drops from Nike, Jordan, adidas, New Balance and others",
+    sources: [
+      { type: "feed", url: "https://sneakernews.com/feed/", site: "Sneaker News", kind: "news" },
+      { type: "news", q: 'sneaker "release date" OR drop' },
+    ],
+  },
+  {
+    id: "nike",
+    name: "Nike",
+    group: "Fashion & beauty",
+    about: "Nike product launches, collaborations and company news",
+    sources: [
+      { type: "site", domain: "about.nike.com" },
+      { type: "news", q: "Nike" },
+    ],
+  },
+  {
+    id: "beauty",
+    name: "Beauty & skincare",
+    group: "Fashion & beauty",
+    about: "new product launches and big news from major beauty and skincare brands",
+    sources: [
+      { type: "feed", url: "https://www.allure.com/feed/rss", site: "Allure", kind: "news" },
+      { type: "news", q: "beauty OR skincare launch OR Sephora OR Ulta" },
+    ],
+  },
 ];
 
 export const presetById = new Map(presets.map((t) => [t.id, t]));
