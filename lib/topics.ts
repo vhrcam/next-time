@@ -10,7 +10,23 @@ export type Topic = {
   custom?: boolean;
 };
 
-export const groups = ["AI", "Tech", "Developers", "Games", "Science"];
+export const groups = [
+  "Sports",
+  "Music",
+  "Movies & TV",
+  "Games",
+  "Tech",
+  "AI",
+  "Science",
+  "Money & business",
+  "Cars",
+  "Food",
+  "Health",
+  "Books",
+  "Fashion & beauty",
+  "Travel",
+  "Developers",
+];
 
 export const presets: Topic[] = [
   {
@@ -258,6 +274,110 @@ export const presets: Topic[] = [
     sources: [
       { type: "feed", url: "https://www.nasa.gov/news-release/feed/", site: "NASA" },
       { type: "news", q: "SpaceX OR NASA announces OR Starship OR launch mission" },
+    ],
+  },
+  {
+    id: "sports",
+    name: "Sports",
+    group: "Sports",
+    broad: true,
+    about: "the biggest sports news: championships, blockbuster trades, record contracts and league decisions",
+    sources: [
+      { type: "feed", url: "https://www.cbssports.com/rss/headlines/", site: "CBS Sports", kind: "news" },
+      { type: "feed", url: "https://feeds.bbci.co.uk/sport/rss.xml", site: "BBC Sport", kind: "news" },
+      { type: "news", q: 'championship OR "blockbuster trade" OR "record contract" OR "head coach"' },
+    ],
+  },
+  {
+    id: "nfl",
+    name: "NFL",
+    group: "Sports",
+    about: "the NFL: trades, signings, injuries, coaching changes, the draft, the schedule and playoff results",
+    sources: [
+      { type: "site", domain: "nfl.com" },
+      { type: "feed", url: "https://www.cbssports.com/rss/headlines/nfl/", site: "CBS Sports", kind: "news" },
+      { type: "feed", url: "https://www.nbcsports.com/profootballtalk.rss", site: "Pro Football Talk", kind: "news" },
+      { type: "news", q: "NFL" },
+    ],
+  },
+  {
+    id: "nba",
+    name: "NBA",
+    group: "Sports",
+    about: "the NBA: trades, signings, injuries, coaching changes, the draft and playoff results",
+    sources: [
+      { type: "site", domain: "nba.com" },
+      { type: "feed", url: "https://www.cbssports.com/rss/headlines/nba/", site: "CBS Sports", kind: "news" },
+      { type: "news", q: "NBA" },
+    ],
+  },
+  {
+    id: "mlb",
+    name: "MLB",
+    group: "Sports",
+    about: "Major League Baseball: trades, free-agent signings, injuries, managers and postseason results",
+    sources: [
+      { type: "feed", url: "https://www.mlb.com/feeds/news/rss.xml", site: "MLB.com" },
+      { type: "feed", url: "https://www.cbssports.com/rss/headlines/mlb/", site: "CBS Sports", kind: "news" },
+      { type: "news", q: 'MLB OR "Major League Baseball"' },
+    ],
+  },
+  {
+    id: "nhl",
+    name: "NHL",
+    group: "Sports",
+    about: "the NHL: trades, signings, injuries, coaching changes and playoff results",
+    sources: [
+      { type: "site", domain: "nhl.com" },
+      { type: "feed", url: "https://www.cbssports.com/rss/headlines/nhl/", site: "CBS Sports", kind: "news" },
+      { type: "news", q: "NHL" },
+    ],
+  },
+  {
+    id: "cfb",
+    name: "College football",
+    group: "Sports",
+    about: "college football: the playoff, coaching changes, conference moves, transfers and bowl results",
+    sources: [
+      { type: "feed", url: "https://www.cbssports.com/rss/headlines/college-football/", site: "CBS Sports", kind: "news" },
+      { type: "news", q: '"college football"' },
+    ],
+  },
+  {
+    id: "premier-league",
+    name: "Premier League",
+    group: "Sports",
+    about: "the Premier League: transfers, manager changes, injuries, fixtures and the results that decide titles",
+    sources: [
+      { type: "site", domain: "premierleague.com" },
+      {
+        type: "feed",
+        url: "https://feeds.bbci.co.uk/sport/football/rss.xml",
+        site: "BBC Sport",
+        kind: "news",
+        match: "Premier League|Arsenal|Chelsea|Liverpool|Man City|Man Utd|Manchester|Tottenham|Newcastle|Aston Villa",
+      },
+      { type: "news", q: '"Premier League"' },
+    ],
+  },
+  {
+    id: "f1",
+    name: "Formula 1",
+    group: "Sports",
+    about: "Formula 1: race results, driver and team moves, rule changes and the calendar",
+    sources: [
+      { type: "site", domain: "formula1.com" },
+      { type: "news", q: '"Formula 1" OR F1' },
+    ],
+  },
+  {
+    id: "ufc",
+    name: "UFC",
+    group: "Sports",
+    about: "the UFC: fight cards, title fights and results, signings and big events",
+    sources: [
+      { type: "feed", url: "https://www.ufc.com/rss/news", site: "UFC" },
+      { type: "news", q: "UFC" },
     ],
   },
 ];
