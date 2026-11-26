@@ -380,6 +380,88 @@ export const presets: Topic[] = [
       { type: "news", q: "UFC" },
     ],
   },
+  {
+    id: "music",
+    name: "Music",
+    group: "Music",
+    broad: true,
+    about: "new albums and singles from major artists, big tours, festival lineups and music awards",
+    sources: [
+      { type: "feed", url: "https://www.billboard.com/feed/", site: "Billboard", kind: "news" },
+      { type: "feed", url: "https://pitchfork.com/feed/feed-news/rss", site: "Pitchfork", kind: "news" },
+      { type: "news", q: '"new album" OR "announces tour" OR "world tour"' },
+    ],
+  },
+  {
+    id: "hiphop",
+    name: "Hip-hop",
+    group: "Music",
+    about: "new hip-hop albums and singles, tours and big news from rap's biggest artists",
+    sources: [
+      { type: "feed", url: "https://www.xxlmag.com/feed/", site: "XXL", kind: "news" },
+      { type: "news", q: 'rapper OR "hip-hop" album OR single OR tour' },
+    ],
+  },
+  {
+    id: "country",
+    name: "Country music",
+    group: "Music",
+    about: "new country albums and singles, tours, award shows and news from country's biggest stars",
+    sources: [
+      { type: "feed", url: "https://tasteofcountry.com/feed/", site: "Taste of Country", kind: "news" },
+      { type: "news", q: '"country music" OR "country singer" album OR tour' },
+    ],
+  },
+  {
+    id: "kpop",
+    name: "K-pop",
+    group: "Music",
+    about: "K-pop comebacks, new albums, tours and group news from BTS, BLACKPINK, Stray Kids and others",
+    sources: [
+      { type: "feed", url: "https://www.soompi.com/feed", site: "Soompi", kind: "news" },
+      { type: "news", q: "K-pop OR BTS OR BLACKPINK comeback OR album OR tour" },
+    ],
+  },
+  {
+    id: "taylor-swift",
+    name: "Taylor Swift",
+    group: "Music",
+    about: "Taylor Swift's new music, tours, releases and official announcements",
+    sources: [
+      { type: "feed", url: "https://www.billboard.com/feed/", site: "Billboard", kind: "news", match: "Taylor Swift" },
+      { type: "news", q: '"Taylor Swift"' },
+    ],
+  },
+  {
+    id: "beyonce",
+    name: "Beyoncé",
+    group: "Music",
+    about: "Beyoncé's new music, tours, releases and official announcements",
+    sources: [
+      { type: "feed", url: "https://www.billboard.com/feed/", site: "Billboard", kind: "news", match: "Beyonc" },
+      { type: "news", q: "Beyoncé OR Beyonce" },
+    ],
+  },
+  {
+    id: "bad-bunny",
+    name: "Bad Bunny",
+    group: "Music",
+    about: "Bad Bunny's new music, tours, releases and official announcements",
+    sources: [
+      { type: "feed", url: "https://www.billboard.com/feed/", site: "Billboard", kind: "news", match: "Bad Bunny" },
+      { type: "news", q: '"Bad Bunny"' },
+    ],
+  },
+  {
+    id: "drake",
+    name: "Drake",
+    group: "Music",
+    about: "Drake's new music, tours, releases and official announcements",
+    sources: [
+      { type: "feed", url: "https://www.billboard.com/feed/", site: "Billboard", kind: "news", match: "Drake" },
+      { type: "news", q: "Drake rapper OR album OR tour" },
+    ],
+  },
 ];
 
 export const presetById = new Map(presets.map((t) => [t.id, t]));
