@@ -2,23 +2,53 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { useClient, useInterests, type Interest } from "@/lib/store";
-import { groups, presetById, presets } from "@/lib/topics";
+import type { Match, Results } from "@/lib/find";
+import { load, useClient, useInterests, type Interest } from "@/lib/store";
+import { groups, presetById, presets, type Topic } from "@/lib/topics";
 import { Block, PageHead, field, label, primary } from "../ui";
 
-const sentence = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+type Item = { key: string; group: string; name: string; note: string; tag?: string; on: boolean; busy?: boolean; onClick: () => void };
 
-function Tile({ on, name, note, broad, onClick }: { on: boolean; name: string; note: string; broad?: boolean; onClick: () => void }) {
+const sentence = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+const clean = (s: string) => s.toLowerCase().trim().replace(/\s+/g, " ");
+const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+async function post(url: string, body: unknown) {
+  const res = await fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error);
+  return data;
+}
+
+// Typing a category's name shows the whole category. Otherwise a listed interest shows when a word in its name
+// starts with the search or its description uses the search as a whole word.
+function listed(q: string) {
+  const start = new RegExp(`\\b${escape(q)}`, "i");
+  const word = new RegExp(`\\b${escape(q)}\\b`, "i");
+  return presets.filter((t) => t.group.toLowerCase() === q || t.id.startsWith(q) || start.test(t.name) || word.test(t.about));
+}
+
+// The app's own categories first, in their usual order, then the rest alphabetically.
+function order(a: string, b: string) {
+  const x = groups.indexOf(a);
+  const y = groups.indexOf(b);
+  if (x >= 0 && y >= 0) return x - y;
+  if (x >= 0 || y >= 0) return x >= 0 ? -1 : 1;
+  return a.localeCompare(b);
+}
+
+function Tile({ item }: { item: Item }) {
   return (
     <button
-      onClick={onClick}
-      aria-pressed={on}
-      className={`flex h-full w-full items-start gap-3 rounded-md border p-3.5 text-left transition-colors ${
-        on ? "border-ink/50 bg-raised" : "border-line bg-surface hover:border-strong"
+      onClick={item.onClick}
+      disabled={item.busy}
+      aria-pressed={item.on}
+      className={`flex h-full w-full items-start gap-3 rounded-md border p-3.5 text-left transition-colors disabled:opacity-60 ${
+        item.on ? "border-ink/50 bg-raised" : "border-line bg-surface hover:border-strong"
       }`}
     >
-      <span className={`mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-[3px] border ${on ? "border-ink bg-ink text-bg" : "border-strong"}`}>
-        {on && (
+      <span className={`mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-[3px] border ${item.on ? "border-ink bg-ink text-bg" : "border-strong"}`}>
+        {item.on && (
           <svg viewBox="0 0 12 12" className="size-3" aria-hidden>
             <path d="M2.5 6.2l2.3 2.3 4.7-5" fill="none" stroke="currentColor" strokeWidth="1.8" />
           </svg>
@@ -26,92 +56,161 @@ function Tile({ on, name, note, broad, onClick }: { on: boolean; name: string; n
       </span>
       <span className="min-w-0">
         <span className="flex flex-wrap items-baseline gap-x-2 text-sm font-medium text-ink">
-          {name}
-          {broad && <span className={label}>Whole field</span>}
+          {item.name}
+          {item.tag && <span className={label}>{item.tag}</span>}
         </span>
-        <span className="mt-0.5 line-clamp-2 text-xs leading-relaxed text-muted">{note}</span>
+        <span className="mt-0.5 line-clamp-2 text-xs leading-relaxed text-muted">{item.busy ? "Adding…" : item.note}</span>
       </span>
     </button>
+  );
+}
+
+function Categories({ items }: { items: Item[] }) {
+  return (
+    <div className="space-y-6">
+      {[...new Set(items.map((i) => i.group))].sort(order).map((g) => (
+        <div key={g}>
+          <h3 className="mb-2 text-[13px] font-medium text-muted">{g}</h3>
+          <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+            {items
+              .filter((i) => i.group === g)
+              .map((i) => (
+                <Tile key={i.key} item={i} />
+              ))}
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }
 
 export default function InterestsPage() {
   const client = useClient();
   const [interests, setInterests] = useInterests();
-  const [form, setForm] = useState({ name: "", words: "", link: "" });
-  const [adding, setAdding] = useState(false);
+  const [text, setText] = useState("");
+  const [answer, setAnswer] = useState<(Results & { q: string }) | null>(null);
+  const [searching, setSearching] = useState(false);
+  const [adding, setAdding] = useState("");
   const [error, setError] = useState("");
+
+  const q = clean(text);
+  const found = answer?.q === q ? answer : null;
   const has = (id: string) => interests.some((i) => i.id === id);
   const toggle = (i: Interest) => setInterests(has(i.id) ? interests.filter((x) => x.id !== i.id) : [...interests, i]);
-  const own = interests.filter((i) => !presetById.has(i.id));
+  const followed = (m: Match) => interests.find((i) => !presetById.has(i.id) && i.name.toLowerCase() === m.name.toLowerCase());
 
-  async function add(e: React.FormEvent) {
+  async function search(e: React.FormEvent) {
     e.preventDefault();
-    setAdding(true);
+    if (q.length < 2) return;
+    setSearching(true);
     setError("");
     try {
-      const res = await fetch("/api/topics", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(form) });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      if (!has(data.id)) setInterests([...interests, { id: data.id, name: data.name }]);
-      setForm({ name: "", words: "", link: "" });
+      setAnswer({ ...(await post("/api/find", { q: text.trim() })), q });
     } catch (err) {
-      setError(err instanceof Error && err.message ? err.message : "Couldn't add that interest");
+      setError(err instanceof Error && err.message ? err.message : "Couldn't search right now");
     }
-    setAdding(false);
+    setSearching(false);
+  }
+
+  async function follow(m: Match) {
+    const on = followed(m);
+    if (on) return setInterests(interests.filter((i) => i.id !== on.id));
+    setAdding(m.name);
+    setError("");
+    try {
+      const data = await post("/api/topics", m);
+      const now = load<Interest[]>("interests", []);
+      if (!now.some((i) => i.id === data.id)) setInterests([...now, { id: data.id, name: data.name, group: m.group, about: m.about }]);
+    } catch (err) {
+      setError(err instanceof Error && err.message ? err.message : "Couldn't follow that");
+    }
+    setAdding("");
   }
 
   if (!client) return null;
 
+  const fromPreset = (t: Topic): Item => ({
+    key: t.id,
+    group: t.group,
+    name: t.name,
+    note: sentence(t.about),
+    tag: t.broad ? "Whole field" : undefined,
+    on: has(t.id),
+    onClick: () => toggle({ id: t.id, name: t.name }),
+  });
+  const fromMatch = (m: Match): Item => ({
+    key: `match-${m.name}`,
+    group: m.group,
+    name: m.name,
+    note: sentence(m.about),
+    on: Boolean(followed(m)),
+    busy: adding === m.name,
+    onClick: () => follow(m),
+  });
+  const mine = interests.map((i): Item => {
+    const t = presetById.get(i.id);
+    if (t) return fromPreset(t);
+    return { key: i.id, group: i.group ?? "Other", name: i.name || "Shared interest", note: i.about ? sentence(i.about) : "Added by you", on: true, onClick: () => toggle(i) };
+  });
+
+  const looking = q.length >= 2;
+  const shown = looking ? [...new Set([...listed(q), ...(found?.related ?? []).flatMap((id) => presetById.get(id) ?? [])])] : [];
+  const results = [...shown.map(fromPreset), ...(found?.matches ?? []).map(fromMatch)];
+  const said = `“${text.trim()}”`;
+  const status = !looking
+    ? ""
+    : searching
+      ? `Searching for ${said}…`
+      : !found
+        ? `Press Search to find more for ${said}, including anything not listed here.`
+        : found.offline
+          ? `Search is busy right now, so this follows ${said} just as you typed it.`
+          : results.length
+            ? ""
+            : `Nothing found for ${said}. Try another name for it.`;
+
   return (
     <>
       <PageHead title="My interests">
-        <p>Follow a whole field or specific subjects. Your briefing only includes what you pick here.</p>
+        <p>Search for anything you want to keep up with: a sport, a team, an artist, a show, a game or a company. Your briefing only includes what you follow.</p>
       </PageHead>
 
-      {groups.map((g) => (
-        <Block key={g} title={g}>
-          <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-            {presets
-              .filter((t) => t.group === g)
-              .map((t) => (
-                <Tile key={t.id} on={has(t.id)} name={t.name} note={sentence(t.about)} broad={t.broad} onClick={() => toggle({ id: t.id, name: t.name })} />
-              ))}
-          </div>
-        </Block>
-      ))}
-
-      <Block title="Your own" note="For anything not listed: a hobby, a team, a product, a company.">
-        {own.length > 0 && (
-          <div className="mb-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-            {own.map((i) => (
-              <Tile key={i.id} on name={i.name || "Shared interest"} note="Added by you. Click to stop following." onClick={() => toggle(i)} />
-            ))}
-          </div>
-        )}
-        <form onSubmit={add} className="grid max-w-3xl gap-2 rounded-md border border-line bg-surface p-3 sm:grid-cols-2">
-          <input className={field} placeholder="Name, like Formula 1" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} maxLength={60} />
+      <form onSubmit={search} className="mb-10 max-w-2xl">
+        <div className="flex gap-2">
           <input
             className={field}
-            placeholder='Search words (optional), like "F1" OR "Formula 1"'
-            value={form.words}
-            onChange={(e) => setForm({ ...form, words: e.target.value })}
-            maxLength={200}
+            type="search"
+            aria-label="Search for an interest"
+            placeholder="Search, like AI, Formula 1 or Taylor Swift"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            maxLength={80}
           />
-          <input
-            className={`${field} sm:col-span-2`}
-            placeholder="Official site or YouTube channel (optional), like formula1.com"
-            value={form.link}
-            onChange={(e) => setForm({ ...form, link: e.target.value })}
-          />
-          <div className="flex flex-wrap items-center gap-3 sm:col-span-2">
-            <button disabled={adding || !form.name.trim()} className={primary}>
-              {adding ? "Adding…" : "Add interest"}
-            </button>
-            {error && <span className="text-sm text-accent">{error}</span>}
-          </div>
-        </form>
-      </Block>
+          <button disabled={searching || !looking} className={`${primary} shrink-0`}>
+            {searching ? "Searching…" : "Search"}
+          </button>
+        </div>
+        {(error || status) && <p className={`mt-2 text-sm ${error ? "text-accent" : "text-muted"}`}>{error || status}</p>}
+      </form>
+
+      {looking ? (
+        results.length > 0 && (
+          <Block title="Results">
+            <Categories items={results} />
+          </Block>
+        )
+      ) : (
+        <>
+          {mine.length > 0 && (
+            <Block title="Following" note="Click one to stop following.">
+              <Categories items={mine} />
+            </Block>
+          )}
+          <Block title="Suggestions" note="A few to start with. Search for anything else.">
+            <Categories items={presets.map(fromPreset)} />
+          </Block>
+        </>
+      )}
 
       <div className="sticky bottom-0 -mx-4 flex items-center justify-between gap-4 border-t border-line bg-bg/95 px-4 py-3 backdrop-blur md:-mx-10 md:px-10">
         <span className="text-sm text-muted">{interests.length ? `Following ${interests.length}` : "Pick at least one interest"}</span>

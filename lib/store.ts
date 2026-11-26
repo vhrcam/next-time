@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useSyncExternalStore } from "react";
 import { defaults, type Briefing, type Entry, type Settings } from "./briefing";
 
-export type Interest = { id: string; name: string };
+export type Interest = { id: string; name: string; group?: string; about?: string };
 
 // Everything a person sets up lives in this browser: there are no accounts.
 const PREFIX = "nexttime:";
