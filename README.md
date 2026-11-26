@@ -19,7 +19,7 @@ Staying off social media keeps you away from the noise, but it also means missin
 3. Stories are saved per topic and shared by everyone who follows it, so the AI cost grows with the number of topics, not the number of people. Searches are shared the same way and kept for a week.
 4. A daily cron checks every topic someone opened in the last 30 days. A topic that hasn't been checked in 12 hours is checked when someone opens it, at most once an hour.
 
-If the AI is unavailable, only posts from official channels are used, and the rest wait for the next check.
+If the AI is unavailable, nothing is added and the posts wait for the next check. Only a local copy with no Gemini key falls back to posts from official channels.
 
 ## Run it locally
 

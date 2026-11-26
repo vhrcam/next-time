@@ -24,12 +24,18 @@ export async function refresh(topic: TopicRow) {
     let used = [...fresh];
     if (list.length) {
       const recent = await storiesFor([topic.id], Date.now() - 21 * 86400000);
-      try {
-        if (!process.env.GEMINI_API_KEY) throw new Error("no key");
-        found = await sortWithAI(topic, list, recent, failed);
-      } catch {
+      if (!process.env.GEMINI_API_KEY) {
         found = sortByRules(list);
         used = list.filter((i) => i.kind === "official").map((i) => i.url);
+      } else {
+        try {
+          found = await sortWithAI(topic, list, recent, failed);
+        } catch {
+          // When the AI is busy, nothing is added: official sites also post opinion and fantasy pieces, so the posts
+          // stay unseen and the topic stays unchecked until the next visit or the daily check tries again.
+          await release(topic.id, false);
+          return { skipped: false, added: 0, failed };
+        }
       }
     }
     for (const f of found) {
